@@ -1,5 +1,5 @@
 all:
-	go build .
+	go build -o ./bin/ .
 
 run:
 	go run .
