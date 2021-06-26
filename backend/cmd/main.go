@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,17 +18,30 @@ var TestCaseIds []string
 
 func gradeRequestHandler(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != "POST" {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+	switch r.Method {
 
-	var gr GradeRequest
-	err := json.NewDecoder(r.Body).Decode(&gr)
+	case "GET":
+		fmt.Fprintf(w, "Usage: POST { TestCaseId: string, UserCode: string }")
 
-	if err != nil {
+	case "POST":
+
+		var gr GradeRequest
+		err := json.NewDecoder(r.Body).Decode(&gr)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if gr.TestCaseId == "" || gr.UserCode == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+	default:
 		w.WriteHeader(http.StatusBadRequest)
 		return
+
 	}
 
 }
