@@ -1,0 +1,10 @@
+[Unit]
+Description=code-grader runtime
+
+[Service]
+ExecStart=/code-grader/runtime/bin/code-grader
+Restart=always
+WorkingDirectory=/code-grader
+
+[Install]
+WantedBy=multi-user.target
