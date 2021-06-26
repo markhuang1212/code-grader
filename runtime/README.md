@@ -2,7 +2,7 @@
 
 ## Usage
 
-`node /dist/main.js --test-case=/path/to/testcase --src=/path/to/source/code.cpp`
+`node /dist/main.js --test-case-path=/path/to/testcase`
 
 Program exits with 0 on success. On failure, it exits with
 * `120` when compilation error

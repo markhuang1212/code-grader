@@ -16,4 +16,4 @@ RUN cd backend && make
 RUN cd runtime && yarn install && yarn run build
 
 USER daemon
-CMD /code-grader/runtime/bin/code-grader
+ENTRYPOINT /code-grader/backend/bin/code-grader
