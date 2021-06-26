@@ -1,9 +1,9 @@
 #!/bin/sh
 
-APPEND=$(cat << EOF
+PREPEND=$(cat << EOF
 #include <bits/stdc++.h>
 using namespace std;
 EOF
 )
 
-echo "$APPEND" && cat
+echo "$PREPEND" && cat
