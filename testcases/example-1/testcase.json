@@ -1,0 +1,16 @@
+{
+    "TestCaseName": "ExampleTestCase1",
+    "PreprocessOptions": {
+        "AppendCode": "./append.txt",
+        "PrependCode": "./prepend.txt"
+    },
+    "CompilerOptions": {
+        "Flags": [
+            "-std=c++11"
+        ]
+    },
+    "RuntimeOptions": {
+        "MemoryLimit": "512",
+        "RuntimeLimit": "10"
+    }
+}
