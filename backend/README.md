@@ -1,12 +1,3 @@
 # backend
 
-## API
-
-* POST /grade
-
-```json
-{
-    "TestCaseId": "xxx",
-    "UserCode": "xxx"
-}
-```
+This is the backend server written in `go`
