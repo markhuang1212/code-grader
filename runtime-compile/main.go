@@ -6,12 +6,27 @@
 package main
 
 import (
+	"encoding/json"
+	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
+
+	"github.com/markhuang1212/code-grader/types"
 )
 
 var testCaseDir string
 
 func main() {
 	testCaseDir = os.Getenv("TEST_CASE_DIR")
+
+	testCaseJson, err := os.ReadFile(filepath.Join(testCaseDir, "testcase.json"))
+	if err != nil {
+		panic(err)
+	}
+	var testCaseOptions types.TestCaseOptions
+	json.Unmarshal(testCaseJson, &testCaseOptions)
+
+	// compileCmd := exec.Command("g++", testCaseOptions.CompilerOptions.Flags...)
 
 }
