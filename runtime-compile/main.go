@@ -28,7 +28,7 @@ func main() {
 	var testCaseOptions types.TestCaseOptions
 	json.Unmarshal(testCaseJson, &testCaseOptions)
 
-	args := append(testCaseOptions.CompilerOptions.Flags, "-x", "c++", "-")
+	args := append(testCaseOptions.CompilerOptions.Flags, "-o-", "-x", "c++", "-")
 	compileCmd := exec.Command("g++", args...)
 
 	compileCmdStdin, err := compileCmd.StdinPipe()

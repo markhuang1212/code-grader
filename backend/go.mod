@@ -1,4 +1,4 @@
-module code-grader/backend
+module github.com/markhuang1212/code-grader/backend
 
 go 1.16
 
