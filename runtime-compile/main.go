@@ -28,6 +28,17 @@ func main() {
 	var testCaseOptions types.TestCaseOptions
 	json.Unmarshal(testCaseJson, &testCaseOptions)
 
+	var prependCode *os.File
+	var appendCode *os.File
+
+	if testCaseOptions.PreprocessOptions.AppendCodePath != "" {
+		appendCode, _ = os.Open(filepath.Join(testCaseDir, testCaseOptions.PreprocessOptions.AppendCodePath))
+	}
+
+	if testCaseOptions.PreprocessOptions.PrependCodePath != "" {
+		prependCode, _ = os.Open(filepath.Join(testCaseDir, testCaseOptions.PreprocessOptions.PrependCodePath))
+	}
+
 	args := append(testCaseOptions.CompilerOptions.Flags, "-o", "/dev/stdout", "-x", "c++", "-")
 	compileCmd := exec.Command("g++", args...)
 
@@ -47,7 +58,13 @@ func main() {
 	}
 
 	go func() {
+		if prependCode != nil {
+			io.Copy(compileCmdStdin, prependCode)
+		}
 		io.Copy(compileCmdStdin, os.Stdin)
+		if appendCode != nil {
+			io.Copy(compileCmdStdin, appendCode)
+		}
 		compileCmdStdin.Close()
 	}()
 
