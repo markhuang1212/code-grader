@@ -1,8 +1,8 @@
 {
     "TestCaseName": "ExampleTestCase1",
     "PreprocessOptions": {
-        "AppendCode": "./append.txt",
-        "PrependCode": "./prepend.txt"
+        "AppendCodePath": "./append.txt",
+        "PrependCodePath": "./prepend.txt"
     },
     "CompilerOptions": {
         "Flags": [
@@ -10,7 +10,9 @@
         ]
     },
     "RuntimeOptions": {
-        "MemoryLimit": "512",
-        "RuntimeLimit": "10"
+        "StdinPath": "./input.txt",
+        "StdoutPath": "./output.txt",
+        "MemoryLimit": 512,
+        "RuntimeLimit": 10
     }
 }
