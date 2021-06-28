@@ -7,6 +7,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"os/exec"
@@ -27,6 +28,38 @@ func main() {
 	var testCaseOptions types.TestCaseOptions
 	json.Unmarshal(testCaseJson, &testCaseOptions)
 
-	// compileCmd := exec.Command("g++", testCaseOptions.CompilerOptions.Flags...)
+	args := append(testCaseOptions.CompilerOptions.Flags, "-x", "c++", "-")
+	compileCmd := exec.Command("g++", args...)
+
+	compileCmdStdin, err := compileCmd.StdinPipe()
+	if err != nil {
+		panic(err)
+	}
+
+	compileCmdStdout, err := compileCmd.StdoutPipe()
+	if err != nil {
+		panic(err)
+	}
+
+	compileCmdStderr, err := compileCmd.StderrPipe()
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		io.Copy(compileCmdStdin, os.Stdin)
+		compileCmdStdin.Close()
+	}()
+
+	go io.Copy(os.Stderr, compileCmdStderr)
+	go io.Copy(os.Stdout, compileCmdStdout)
+
+	err = compileCmd.Run()
+
+	var exitError *exec.ExitError
+
+	if errors.As(err, &exitError) {
+		os.Exit(exitError.ExitCode())
+	}
 
 }
