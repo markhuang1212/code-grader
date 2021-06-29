@@ -1,4 +1,1 @@
-// Input Data
-// Line starting with `//` and empty lines will be ignored
-
-Hello
+HelloWorld

@@ -4,6 +4,7 @@ type TestCaseOptions struct {
 	TestCaseName      string
 	PreprocessOptions PreprocessOptions
 	CompilerOptions   CompilerOptions
+	RuntimeOptions    RuntimeOptions
 }
 
 type PreprocessOptions struct {
