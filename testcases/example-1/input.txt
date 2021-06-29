@@ -1,4 +1,4 @@
 // Input Data
-// Line Starts with `//` will be ignored
+// Line starting with `//` and empty lines will be ignored
 
 Hello

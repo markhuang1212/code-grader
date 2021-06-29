@@ -1,9 +1,4 @@
 int main() {
-    string word;
-    cin << word;
-    if (word == "Hello)
-    {
-        cout << "World" << endl;
-    }
+    cout << "World" << endl;
     return 0;
 }
