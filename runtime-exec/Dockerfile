@@ -2,7 +2,7 @@ FROM ubuntu:21.04
 
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get -y install golang ca-certificates build-essential
+RUN apt-get -y install golang ca-certificates
 
 RUN update-ca-certificates
 
