@@ -11,4 +11,6 @@ COPY . .
 
 WORKDIR /code-grader/runtime-exec
 RUN go build
+
+USER daemon
 ENTRYPOINT [ "./runtime-exec" ]

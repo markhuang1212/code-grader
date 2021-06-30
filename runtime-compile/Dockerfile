@@ -11,4 +11,6 @@ COPY . .
 
 WORKDIR /code-grader/runtime-compile
 RUN go build
+
+USER daemon
 ENTRYPOINT [ "./runtime-compile" ]

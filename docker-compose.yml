@@ -1,0 +1,34 @@
+version: "3.9"
+services: 
+    backend:
+        build:
+            context: .
+            dockerfile: backend/Dockerfile
+        image: markhuang1212/code-grader/backend
+        ports: 
+            - "8080:8080"
+            - "8443:8443"
+        volumes: 
+            - /var/run/docker.sock:/var/run/docker.sock
+        deploy:
+            resources:
+                limits:
+                    memory: 4G
+                    cpus: '1.0'
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+    runtime-compile:
+        build: 
+            context: .
+            dockerfile: runtime-compile/Dockerfile
+        image: markhuang1212/code-grader/runtime-compile
+        entrypoint: ["/usr/bin/true"]
+    runtime-exec:
+        build: 
+            context: .
+            dockerfile: runtime-exec/Dockerfile
+        image: markhuang1212/code-grader/runtime-exec
+        entrypoint: ["/usr/bin/true"]

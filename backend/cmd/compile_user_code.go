@@ -14,7 +14,7 @@ import (
 )
 
 const CompilationMemoryLimit = 50 * 1024 * 1024
-const imageName = "runtime-compile:latest"
+const imageName = "markhuang1212/code-grader/runtime-compile"
 
 var InternalError = errors.New("internal error")
 var CompilationFailure = errors.New("compilation error")
