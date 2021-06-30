@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"io"
+	"os"
 	"path/filepath"
+	"time"
 
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -13,27 +16,28 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Memory Limit of a G++ Process
-const CompilationMemoryLimit = 100 * 1024 * 1024
+const imageExec = "markhuang1212/code-grader/runtime-exec:latest"
 
-// it is required that the docker image is built before the program runs
-const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
+func exec_user_code(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
 
-// The function compiles user's code inside a docker container, and returns the
-// executable on success
-func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
+	var testCase types.TestCaseOptions
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	testCaseJson, err := os.ReadFile(filepath.Join(AppRoot, "testcases", gr.TestCaseName, "testcase.json"))
 	if err != nil {
-		return nil, errors.WithMessage(err, "cannot create docker client")
+		return nil, errors.Wrap(InternalError, "cannot open testcase.json")
 	}
 
+	err = json.Unmarshal(testCaseJson, &testCase)
+	if err != nil {
+		return nil, errors.Wrap(InternalError, "cannot parse testcase.json")
+	}
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: imageCompile,
+		Image: imageExec,
 		Env: []string{
 			"TEST_CASE_DIR=" + filepath.Join("/code-grader/testcases", gr.TestCaseName),
-			"CXX=g++",
-			"CXXFLAGS=-std=c++11",
 		},
 		OpenStdin: true,
 		StdinOnce: true,
@@ -59,9 +63,12 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		return nil, errors.Wrap(InternalError, "cannot attach container")
 	}
 
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNextExit)
+	ctxdl, cancel := context.WithTimeout(ctx, time.Second*time.Duration(testCase.RuntimeOptions.RuntimeLimit))
+	defer cancel()
 
-	err = cli.ContainerStart(ctx, resp.ID, dockertypes.ContainerStartOptions{})
+	statusCh, errCh := cli.ContainerWait(ctxdl, resp.ID, container.WaitConditionNextExit)
+
+	err = cli.ContainerStart(ctxdl, resp.ID, dockertypes.ContainerStartOptions{})
 	if err != nil {
 		return nil, errors.Wrap(InternalError, "cannot start container")
 	}
@@ -94,7 +101,11 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		default:
 			return nil, InternalError
 		}
-	case <-errCh:
+	case err := <-errCh:
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, TimeLimitExceed
+		}
 		return nil, errors.Wrap(InternalError, "error waiting container")
 	}
+
 }

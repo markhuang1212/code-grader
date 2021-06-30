@@ -1,4 +1,9 @@
 int main() {
-    cout << "World" << endl;
+    string w;
+    cin >> w;
+    if (w == "Hello")
+    {
+        cout << "World" << endl;
+    }
     return 0;
 }

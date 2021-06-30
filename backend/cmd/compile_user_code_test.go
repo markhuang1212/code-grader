@@ -11,11 +11,15 @@ import (
 
 func TestCompileUserCode(t *testing.T) {
 	ctx := context.Background()
+
 	gr := types.GradeRequest{
 		TestCaseName: "example-1",
 		UserCode:     "",
 	}
 
-	_, err := cmd.CompileUserCode(ctx, gr)
+	data, err := cmd.CompileUserCode(ctx, gr)
+
+	fmt.Println(data)
 	fmt.Println(err)
+
 }

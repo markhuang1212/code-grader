@@ -1,0 +1,19 @@
+Tree* makeTree(vector<int> data) {
+    
+}
+
+int main() {
+    int T;
+    cin >> T;
+    for (int i=0; i<T; i++)
+    {
+        int N;
+        cin >> N;
+
+        vector<int> data(N);
+        for (int j=0; j<T; j++)
+        {
+            cin >> data[j];
+        }
+    }
+}

@@ -7,9 +7,15 @@ import (
 )
 
 func SetupRouter() *gin.Engine {
+
 	r := gin.Default()
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
+	})
+
+	r.POST("/grade", func(c *gin.Context) {
+
 	})
 
 	return r

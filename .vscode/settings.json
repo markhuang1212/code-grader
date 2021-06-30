@@ -1,7 +1,14 @@
 {
     "cSpell.words": [
+        "CXXFLAGS",
+        "cout",
+        "ctxdl",
+        "endl",
+        "hjresp",
         "lpthread",
         "prepend",
+        "stdc",
+        "struct",
         "usercode"
     ]
 }

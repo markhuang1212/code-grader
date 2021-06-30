@@ -15,5 +15,6 @@ RUN go build
 
 EXPOSE 8080
 ENV GIN_MODE=release
+ENV APP_ROOT=/code-grader
 
 ENTRYPOINT [ "/code-grader/backend/backend" ]
