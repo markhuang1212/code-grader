@@ -3,17 +3,20 @@ FROM ubuntu:21.04
 RUN apt-get update
 RUN apt-get -y upgrade
 
-RUN apt-get -y install build-essential curl golang
+RUN apt-get -y install build-essential curl golang ca-certificates docker.io
+RUN systemctl enable docker.io
+RUN systemctl start docker.io
 
-RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-RUN apt-get install -y nodejs
-RUN npm i -g npm@latest
-RUN npm i -g yarn
+RUN update-ca-certificates
+RUN usermod -aG docker daemon
 
 WORKDIR /code-grader
 COPY . .
-RUN cd backend && make
-RUN cd runtime && yarn install && yarn run build
+
+RUN docker build . -f runtime-compile/Dockerfile -t runtime-compile
+RUN docker build . -f runtime-exec/Dockerfile -t runtime-exec
+
+EXPOSE 8080
 
 USER daemon
-ENTRYPOINT /code-grader/backend/bin/code-grader
+ENTRYPOINT [ "/code-grader/backend/code-grader" ]

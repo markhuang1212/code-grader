@@ -3,7 +3,6 @@
 // If the test case passes, it exit with status 0
 // In case error occurred, it output the error message
 // to stderr, and exit with status 1.
-
 package main
 
 import (
@@ -69,11 +68,11 @@ func main() {
 		r1 := answerScanner.Scan()
 		r2 := progOutputScanner.Scan()
 
-		if r1 == false && r2 == false {
+		if !r1 && !r2 {
 			os.Exit(0)
 		}
 
-		if r1 == false || r2 == false {
+		if !r1 || !r2 {
 			log.Println("Wrong Answer!")
 			os.Exit(1)
 		}
