@@ -1,17 +1,5 @@
 {
-    "TestCaseName": "ExampleTestCase1",
-    "PreprocessOptions": {
-        "AppendCodePath": "./append.txt",
-        "PrependCodePath": "./prepend.txt"
-    },
-    "CompilerOptions": {
-        "Flags": [
-            "-std=c++11"
-        ]
-    },
     "RuntimeOptions": {
-        "StdinPath": "./input.txt",
-        "StdoutPath": "./output.txt",
         "MemoryLimit": 512,
         "RuntimeLimit": 10
     }

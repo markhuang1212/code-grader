@@ -9,5 +9,5 @@ sudo apt-get -y upgrade
 sudo apt-get install docker.io
 sudo usermod -aG docker 
 
-docker build 
+docker-compose build 
 docker-compose up
