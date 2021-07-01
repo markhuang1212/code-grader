@@ -22,7 +22,7 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
 
 	var testCase types.TestCaseOptions
 
-	testCaseJson, err := os.ReadFile(filepath.Join(AppRoot, "testcases", gr.TestCaseName, "testcase.json"))
+	testCaseJson, err := os.ReadFile(filepath.Join(GetAppRoot(), "testcases", gr.TestCaseName, "testcase.json"))
 	if err != nil {
 		return nil, errors.Wrap(ErrInternalError, "cannot open testcase.json")
 	}

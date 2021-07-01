@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"os"
 )
 
 var (
@@ -10,5 +9,4 @@ var (
 	ErrMemoryLimitExceed = errors.New("memory limit exceeds")
 	ErrInternalError     = errors.New("internal error")
 	ErrCompilationError  = errors.New("compilation error")
-	AppRoot              = os.Getenv("APP_ROOT")
 )

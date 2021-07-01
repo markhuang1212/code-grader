@@ -4,8 +4,9 @@ import (
 	"context"
 	"io"
 	"strconv"
+	"time"
 
-	//"log"
+	"log"
 	"path/filepath"
 
 	dockertypes "github.com/docker/docker/api/types"
@@ -15,8 +16,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Memory Limit of a G++ Process
 const CompilationMemoryLimit = 100 * 1024 * 1024
+const CompilationTimeLimit = 10 * time.Second
 
 // it is required that the docker image is built before the program runs
 const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
@@ -25,12 +26,15 @@ const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
 // executable on success
 func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
 
+	ctxdl, cancel := context.WithTimeout(ctx, CompilationTimeLimit)
+	defer cancel()
+
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot create docker client")
 	}
 
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
+	resp, err := cli.ContainerCreate(ctxdl, &container.Config{
 		Image: imageCompile,
 		Env: []string{
 			"TEST_CASE_DIR=" + filepath.Join("/code-grader/testcases", gr.TestCaseName),
@@ -49,7 +53,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		return nil, errors.Wrap(ErrInternalError, "cannot create container")
 	}
 
-	hjresp, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
+	hjresp, err := cli.ContainerAttach(ctxdl, resp.ID, dockertypes.ContainerAttachOptions{
 		Stdin:  true,
 		Stream: true,
 	})
@@ -58,21 +62,21 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		return nil, errors.Wrap(ErrInternalError, "cannot attach container")
 	}
 
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNextExit)
+	statusCh, errCh := cli.ContainerWait(ctxdl, resp.ID, container.WaitConditionNextExit)
 
-	err = cli.ContainerStart(ctx, resp.ID, dockertypes.ContainerStartOptions{})
+	err = cli.ContainerStart(ctxdl, resp.ID, dockertypes.ContainerStartOptions{})
 	if err != nil {
 		return nil, errors.Wrap(ErrInternalError, "cannot start container")
 	}
 
 	defer func() {
-		// err := cli.ContainerRemove(ctx, resp.ID, dockertypes.ContainerRemoveOptions{
-		// 	Force: true,
-		// })
-		// if err != nil {
-		// 	log.Fatal("cannot kill and remove container")
-		// 	panic(err)
-		// }
+		err := cli.ContainerRemove(ctxdl, resp.ID, dockertypes.ContainerRemoveOptions{
+			Force: true,
+		})
+		if err != nil {
+			log.Panicln("cannot kill and remove container")
+			panic(err)
+		}
 	}()
 
 	userCodeLength := len(gr.UserCode)
@@ -88,7 +92,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 	case status := <-statusCh:
 		switch status.StatusCode {
 		case 0:
-			stdout, err := cli.ContainerLogs(ctx, resp.ID, dockertypes.ContainerLogsOptions{
+			stdout, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
 				ShowStdout: true,
 				ShowStderr: false,
 			})
@@ -98,7 +102,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 			result, _ := io.ReadAll(stdout)
 			return result, nil
 		case 1:
-			stderr, err := cli.ContainerLogs(ctx, resp.ID, dockertypes.ContainerLogsOptions{
+			stderr, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
 				ShowStderr: true,
 				ShowStdout: false,
 			})
