@@ -1,16 +1,16 @@
 package types
 
-type GradeResult int
+type GradeResultStatus int
 
 const (
-	GradeResultSuccess GradeResult = iota
+	GradeResultSuccess GradeResultStatus = iota
 	GradeResultWrongAnswer
 	GradeResultCompilationError
 	GradeResultTimeLimitExceed
 	GradeResultMemoryExceed
 )
 
-type GradeResultMsg struct {
-	Result GradeResult
+type GradeResult struct {
+	Status GradeResultStatus
 	Msg    string
 }

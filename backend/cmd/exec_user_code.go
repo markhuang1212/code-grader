@@ -12,27 +12,30 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/markhuang1212/code-grader/types"
+	"github.com/markhuang1212/code-grader/backend/types"
 	"github.com/pkg/errors"
 )
 
 const imageExec = "markhuang1212/code-grader/runtime-exec:latest"
 
-func exec_user_code(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
+func ExecUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
 
 	var testCase types.TestCaseOptions
 
 	testCaseJson, err := os.ReadFile(filepath.Join(AppRoot, "testcases", gr.TestCaseName, "testcase.json"))
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot open testcase.json")
+		return nil, errors.Wrap(ErrInternalError, "cannot open testcase.json")
 	}
 
 	err = json.Unmarshal(testCaseJson, &testCase)
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot parse testcase.json")
+		return nil, errors.Wrap(ErrInternalError, "cannot parse testcase.json")
 	}
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, errors.Wrap(ErrInternalError, "cannot create docker client")
+	}
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: imageExec,
@@ -49,7 +52,7 @@ func exec_user_code(ctx context.Context, gr types.GradeRequest) ([]byte, error) 
 	}, nil, nil, "")
 
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot create container")
+		return nil, errors.Wrap(ErrInternalError, "cannot create container")
 	}
 
 	hjresp, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
@@ -60,7 +63,7 @@ func exec_user_code(ctx context.Context, gr types.GradeRequest) ([]byte, error) 
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot attach container")
+		return nil, errors.Wrap(ErrInternalError, "cannot attach container")
 	}
 
 	ctxdl, cancel := context.WithTimeout(ctx, time.Second*time.Duration(testCase.RuntimeOptions.RuntimeLimit))
@@ -70,8 +73,13 @@ func exec_user_code(ctx context.Context, gr types.GradeRequest) ([]byte, error) 
 
 	err = cli.ContainerStart(ctxdl, resp.ID, dockertypes.ContainerStartOptions{})
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot start container")
+		return nil, errors.Wrap(ErrInternalError, "cannot start container")
 	}
+
+	defer cli.ContainerRemove(ctx, resp.ID, dockertypes.ContainerRemoveOptions{
+		Force: true,
+	})
+	defer cli.ContainerStop(ctx, resp.ID, nil)
 
 	outR, outW := io.Pipe()
 	errR, errW := io.Pipe()
@@ -84,28 +92,28 @@ func exec_user_code(ctx context.Context, gr types.GradeRequest) ([]byte, error) 
 	select {
 	case status := <-statusCh:
 		switch status.StatusCode {
-		case 0:
+		case 0: // success
 			result, err := io.ReadAll(outR)
 			if err != nil {
-				return nil, errors.Wrap(InternalError, "error reading outR")
+				return nil, errors.Wrap(ErrInternalError, "error reading outR")
 			}
 			return result, nil
-		case 1:
+		case 1: // wrong result
 			result, err := io.ReadAll(errR)
 			if err != nil {
-				return nil, errors.Wrap(InternalError, "error reading errR")
+				return nil, errors.Wrap(ErrInternalError, "error reading errR")
 			}
-			return result, CompilationError
-		case 2:
-			return nil, InternalError
+			return result, ErrCompilationError
+		case 2: // internal error
+			return nil, ErrInternalError
 		default:
-			return nil, InternalError
+			return nil, ErrInternalError
 		}
 	case err := <-errCh:
 		if errors.Is(err, context.DeadlineExceeded) {
-			return nil, TimeLimitExceed
+			return nil, ErrTimeLimitExceed
 		}
-		return nil, errors.Wrap(InternalError, "error waiting container")
+		return nil, errors.Wrap(ErrInternalError, "error waiting container")
 	}
 
 }

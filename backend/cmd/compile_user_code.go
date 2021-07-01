@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"io"
+	//"log"
 	"path/filepath"
 
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/markhuang1212/code-grader/types"
+	"github.com/markhuang1212/code-grader/backend/types"
 	"github.com/pkg/errors"
 )
 
@@ -45,34 +46,52 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 	}, nil, nil, "")
 
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot create container")
+		return nil, errors.Wrap(ErrInternalError, "cannot create container")
 	}
 
-	hjresp, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
-		Stream: true,
-		Stdin:  true,
+	attachInput, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
+		Stdin: true,
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(ErrInternalError, "cannot attach container input")
+	}
+
+	attachOutput, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
 		Stdout: true,
 		Stderr: true,
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot attach container")
+		return nil, errors.Wrap(ErrInternalError, "cannot attach container output")
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNextExit)
 
 	err = cli.ContainerStart(ctx, resp.ID, dockertypes.ContainerStartOptions{})
 	if err != nil {
-		return nil, errors.Wrap(InternalError, "cannot start container")
+		return nil, errors.Wrap(ErrInternalError, "cannot start container")
 	}
+
+	defer func() {
+		// err := cli.ContainerRemove(ctx, resp.ID, dockertypes.ContainerRemoveOptions{
+		// 	Force: true,
+		// })
+		// if err != nil {
+		// 	log.Fatal("cannot kill and remove container")
+		// 	panic(err)
+		// }
+	}()
+
+	attachInput.Conn.Write([]byte(gr.UserCode))
+	attachInput.Close()
 
 	outR, outW := io.Pipe()
 	errR, errW := io.Pipe()
-	hjresp.Conn.Write([]byte(gr.UserCode))
-	hjresp.Conn.Close()
-	stdcopy.StdCopy(outW, errW, hjresp.Conn)
+	stdcopy.StdCopy(outW, errW, attachOutput.Conn)
 	outW.Close()
 	errW.Close()
+	attachOutput.Conn.Close()
 
 	select {
 	case status := <-statusCh:
@@ -80,21 +99,21 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		case 0:
 			result, err := io.ReadAll(outR)
 			if err != nil {
-				return nil, errors.Wrap(InternalError, "error reading outR")
+				return nil, errors.Wrap(ErrInternalError, "error reading outR")
 			}
 			return result, nil
 		case 1:
 			result, err := io.ReadAll(errR)
 			if err != nil {
-				return nil, errors.Wrap(InternalError, "error reading errR")
+				return nil, errors.Wrap(ErrInternalError, "error reading errR")
 			}
-			return result, CompilationError
+			return result, ErrCompilationError
 		case 2:
-			return nil, InternalError
+			return nil, ErrInternalError
 		default:
-			return nil, InternalError
+			return nil, ErrInternalError
 		}
 	case <-errCh:
-		return nil, errors.Wrap(InternalError, "error waiting container")
+		return nil, errors.Wrap(ErrInternalError, "error waiting container")
 	}
 }

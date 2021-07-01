@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	TimeLimitExceed   = errors.New("time limit exceeds")
-	MemoryLimitExceed = errors.New("memory limit exceeds")
-	InternalError     = errors.New("internal error")
-	CompilationError  = errors.New("compilation error")
-	AppRoot           = os.Getenv("APP_ROOT")
+	ErrTimeLimitExceed   = errors.New("time limit exceeds")
+	ErrMemoryLimitExceed = errors.New("memory limit exceeds")
+	ErrInternalError     = errors.New("internal error")
+	ErrCompilationError  = errors.New("compilation error")
+	AppRoot              = os.Getenv("APP_ROOT")
 )

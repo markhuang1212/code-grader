@@ -2,24 +2,32 @@ package cmd_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/markhuang1212/code-grader/backend/cmd"
-	"github.com/markhuang1212/code-grader/types"
+	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCompileUserCode(t *testing.T) {
 	ctx := context.Background()
 
-	gr := types.GradeRequest{
+	gr1 := types.GradeRequest{
 		TestCaseName: "example-1",
 		UserCode:     "",
 	}
 
-	data, err := cmd.CompileUserCode(ctx, gr)
+	out, err := cmd.CompileUserCode(ctx, gr1)
+	assert.ErrorIs(t, err, cmd.ErrCompilationError)
+	t.Log(out)
 
-	fmt.Println(data)
-	fmt.Println(err)
+	gr2 := types.GradeRequest{
+		TestCaseName: "example-1",
+		UserCode:     "int main() { cout << \"Hello\" << endl; }",
+	}
+
+	out, err = cmd.CompileUserCode(ctx, gr2)
+	assert.Equal(t, err, nil)
+	t.Log(out)
 
 }
