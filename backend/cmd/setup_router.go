@@ -10,11 +10,13 @@ func SetupRouter() *gin.Engine {
 
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
+	authorized := r.Group("/")
+
+	authorized.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
 
-	r.POST("/grade", func(c *gin.Context) {
+	authorized.POST("/grade", func(c *gin.Context) {
 
 	})
 

@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"io"
+	"strconv"
+
 	//"log"
 	"path/filepath"
 
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/markhuang1212/code-grader/backend/types"
 	"github.com/pkg/errors"
 )
@@ -37,11 +38,10 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 			"CXXFLAGS=-std=c++11",
 		},
 		OpenStdin: true,
-		StdinOnce: true,
 	}, &container.HostConfig{
 		NetworkMode: "none",
-		Resources: container.Resources{
-			Memory: CompilationMemoryLimit,
+		Resources:   container.Resources{
+			// Memory: CompilationMemoryLimit,
 		},
 	}, nil, nil, "")
 
@@ -49,21 +49,13 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		return nil, errors.Wrap(ErrInternalError, "cannot create container")
 	}
 
-	attachInput, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
-		Stdin: true,
+	hjresp, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
+		Stdin:  true,
+		Stream: true,
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(ErrInternalError, "cannot attach container input")
-	}
-
-	attachOutput, err := cli.ContainerAttach(ctx, resp.ID, dockertypes.ContainerAttachOptions{
-		Stdout: true,
-		Stderr: true,
-	})
-
-	if err != nil {
-		return nil, errors.Wrap(ErrInternalError, "cannot attach container output")
+		return nil, errors.Wrap(ErrInternalError, "cannot attach container")
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNextExit)
@@ -83,30 +75,37 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 		// }
 	}()
 
-	attachInput.Conn.Write([]byte(gr.UserCode))
-	attachInput.Close()
+	userCodeLength := len(gr.UserCode)
+	hjresp.Conn.Write([]byte(strconv.Itoa(userCodeLength) + "\n"))
+	hjresp.Conn.Write([]byte(gr.UserCode))
+	hjresp.Close()
 
-	outR, outW := io.Pipe()
-	errR, errW := io.Pipe()
-	stdcopy.StdCopy(outW, errW, attachOutput.Conn)
-	outW.Close()
-	errW.Close()
-	attachOutput.Conn.Close()
+	if err != nil {
+		return nil, errors.Wrap(ErrInternalError, "cannot close attached session (output)")
+	}
 
 	select {
 	case status := <-statusCh:
 		switch status.StatusCode {
 		case 0:
-			result, err := io.ReadAll(outR)
+			stdout, err := cli.ContainerLogs(ctx, resp.ID, dockertypes.ContainerLogsOptions{
+				ShowStdout: true,
+				ShowStderr: false,
+			})
 			if err != nil {
-				return nil, errors.Wrap(ErrInternalError, "error reading outR")
+				return nil, errors.Wrap(ErrInternalError, "error reading stdout")
 			}
+			result, _ := io.ReadAll(stdout)
 			return result, nil
 		case 1:
-			result, err := io.ReadAll(errR)
+			stderr, err := cli.ContainerLogs(ctx, resp.ID, dockertypes.ContainerLogsOptions{
+				ShowStderr: true,
+				ShowStdout: false,
+			})
 			if err != nil {
-				return nil, errors.Wrap(ErrInternalError, "error reading errR")
+				return nil, errors.Wrap(ErrInternalError, "error reading stdout")
 			}
+			result, _ := io.ReadAll(stderr)
 			return result, ErrCompilationError
 		case 2:
 			return nil, ErrInternalError

@@ -14,7 +14,7 @@ func TestCompileUserCode(t *testing.T) {
 
 	gr1 := types.GradeRequest{
 		TestCaseName: "example-1",
-		UserCode:     "",
+		UserCode:     " ",
 	}
 
 	out, err := cmd.CompileUserCode(ctx, gr1)

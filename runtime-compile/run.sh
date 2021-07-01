@@ -5,7 +5,9 @@
 # 1: Compilation Error
 # 2: Internal Error
 
-tee > code.txt
+read LENGTH
+
+dd bs=$LENGTH count=1 of=code.txt > /dev/null
 
 if [ -z "${TEST_CASE_DIR}" ]
 then
@@ -29,11 +31,11 @@ cat ${TEST_CASE_DIR}/prepend.txt > main.cpp
 cat code.txt >> main.cpp
 cat ${TEST_CASE_DIR}/append.txt >> main.cpp
 
-${CXX} ${CXXFLAGS} -o /tmp/a.out main.cpp
+${CXX} ${CXXFLAGS} -o a.out main.cpp
 
 if [[ $? -ne 0 ]]
 then
     exit 1
 fi
 
-cat /tmp/a.out
+cat a.out
