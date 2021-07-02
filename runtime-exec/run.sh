@@ -3,10 +3,14 @@
 # Exit Code
 # 0: Success
 # 1: Wrong Answer
-# 2: Internal Error
+# 2: Execution Error
+# 3: Internal Error
 
-tee > /tmp/a.out
-chmod +x /tmp/a.out
+read LENGTH
+
+dd bs=$LENGTH count=1 of=a.out > /dev/null
+
+chmod +x a.out
 
 if [ -z "${TEST_CASE_DIR}" ]
 then
@@ -14,12 +18,12 @@ then
     exit 2
 fi
 
-/tmp/a.out < ${TEST_CASE_DIR}/input.txt > /tmp/output.txt
+a.out < ${TEST_CASE_DIR}/input.txt > output.txt
 
 if [[ $? -ne 0 ]]
 then
-    cat /tmp/output.txt
+    cat output.txt
     exit 2
 fi
 
-diff /tmp/output.txt ${TEST_CASE_DIR}/output.txt
+diff output.txt ${TEST_CASE_DIR}/output.txt

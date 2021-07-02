@@ -5,6 +5,7 @@ type GradeResultStatus int
 const (
 	GradeResultSuccess GradeResultStatus = iota
 	GradeResultWrongAnswer
+	GradeResultInternalError
 	GradeResultCompilationError
 	GradeResultTimeLimitExceed
 	GradeResultMemoryExceed
