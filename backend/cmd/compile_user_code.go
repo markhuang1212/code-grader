@@ -16,15 +16,25 @@ import (
 	"github.com/pkg/errors"
 )
 
+type CompileUserCodeResult struct {
+	Ok     bool
+	Result []byte
+	Msg    string
+}
+
 const CompilationMemoryLimit = 100 * 1024 * 1024
 const CompilationTimeLimit = 10 * time.Second
+
+var ErrCompilationError = errors.New("compilation error")
 
 // it is required that the docker image is built before the program runs
 const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
 
 // The function compiles user's code inside a docker container, and returns the
 // executable on success
-func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error) {
+func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCodeResult, error) {
+
+	result := &CompileUserCodeResult{}
 
 	ctxdl, cancel := context.WithTimeout(ctx, CompilationTimeLimit)
 	defer cancel()
@@ -50,7 +60,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 	}, nil, nil, "")
 
 	if err != nil {
-		return nil, errors.Wrap(ErrInternalError, "cannot create container")
+		return nil, errors.Wrap(err, "cannot create container")
 	}
 
 	hjresp, err := cli.ContainerAttach(ctxdl, resp.ID, dockertypes.ContainerAttachOptions{
@@ -59,14 +69,14 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(ErrInternalError, "cannot attach container")
+		return nil, errors.Wrap(err, "cannot attach container")
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctxdl, resp.ID, container.WaitConditionNextExit)
 
 	err = cli.ContainerStart(ctxdl, resp.ID, dockertypes.ContainerStartOptions{})
 	if err != nil {
-		return nil, errors.Wrap(ErrInternalError, "cannot start container")
+		return nil, errors.Wrap(ErrCompilationError, "cannot start container")
 	}
 
 	defer func() {
@@ -85,7 +95,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 	hjresp.Close()
 
 	if err != nil {
-		return nil, errors.Wrap(ErrInternalError, "cannot close attached session (output)")
+		return nil, errors.Wrap(err, "cannot close attached session (output)")
 	}
 
 	select {
@@ -97,9 +107,11 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 				ShowStderr: false,
 			})
 			if err != nil {
-				return nil, errors.Wrap(ErrInternalError, "error reading stdout")
+				return nil, errors.Wrap(err, "error reading stdout")
 			}
-			result, _ := io.ReadAll(stdout)
+			program, _ := io.ReadAll(stdout)
+			result.Ok = true
+			result.Result = program
 			return result, nil
 		case 1:
 			stderr, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
@@ -107,16 +119,18 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) ([]byte, error)
 				ShowStdout: false,
 			})
 			if err != nil {
-				return nil, errors.Wrap(ErrInternalError, "error reading stdout")
+				return nil, errors.Wrap(err, "error reading stdout")
 			}
-			result, _ := io.ReadAll(stderr)
-			return result, ErrCompilationError
+			errText, _ := io.ReadAll(stderr)
+			result.Msg = string(errText)
+			result.Ok = false
+			return result, nil
 		case 2:
-			return nil, ErrInternalError
+			return nil, ErrCompilationError
 		default:
-			return nil, ErrInternalError
+			return nil, ErrCompilationError
 		}
-	case <-errCh:
-		return nil, errors.Wrap(ErrInternalError, "error waiting container")
+	case err := <-errCh:
+		return nil, errors.Wrap(err, "error waiting container")
 	}
 }

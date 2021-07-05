@@ -17,17 +17,19 @@ func TestCompileUserCode(t *testing.T) {
 		UserCode:     " ",
 	}
 
-	out, err := cmd.CompileUserCode(ctx, gr1)
-	assert.ErrorIs(t, err, cmd.ErrCompilationError)
-	t.Log(out)
+	result, err := cmd.CompileUserCode(ctx, gr1)
+	assert.Nil(t, err)
+	assert.False(t, result.Ok)
+	t.Log(result)
 
 	gr2 := types.GradeRequest{
 		TestCaseName: "example-1",
 		UserCode:     "int main() { cout << \"Hello\" << endl; }",
 	}
 
-	out, err = cmd.CompileUserCode(ctx, gr2)
-	assert.Equal(t, err, nil)
-	t.Log(out)
+	result, err = cmd.CompileUserCode(ctx, gr2)
+	assert.Nil(t, err)
+	assert.True(t, result.Ok)
+	t.Log(result)
 
 }
