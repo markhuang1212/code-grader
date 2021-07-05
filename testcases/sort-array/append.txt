@@ -1,0 +1,14 @@
+int main() {
+    int T;
+    cin >> T;
+    for (int i=0; i<T; i++) {
+        int N;
+        cin >> N;
+        vector<int> data(N);
+        for (int j=0; j<N; j++) {
+            cin >> data;
+        }
+        bool result = BinarySearch(data);
+        printf("%d\n", result);
+    }
+}

@@ -15,7 +15,7 @@ chmod +x a.out
 if [ -z "${TEST_CASE_DIR}" ]
 then
     echo "Missing TEST_CASE_DIR"
-    exit 2
+    exit 3
 fi
 
 a.out < ${TEST_CASE_DIR}/input.txt > output.txt

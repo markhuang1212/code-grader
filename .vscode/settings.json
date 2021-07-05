@@ -9,8 +9,11 @@
         "hjresp",
         "lpthread",
         "prepend",
+        "printf",
         "stdc",
         "struct",
+        "testcase",
+        "testcases",
         "usercode"
     ]
 }

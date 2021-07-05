@@ -32,4 +32,11 @@ func TestCompileUserCode(t *testing.T) {
 	assert.True(t, result.Ok)
 	t.Log(result)
 
+	gr3 := types.GradeRequest{
+		TestCaseName: "some-random-name",
+		UserCode:     " ",
+	}
+	_, err = cmd.CompileUserCode(ctx, gr3)
+	assert.ErrorIs(t, err, types.ErrNoTestCase)
+
 }

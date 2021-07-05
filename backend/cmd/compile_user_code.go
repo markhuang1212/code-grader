@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"strconv"
 	"time"
@@ -22,10 +23,10 @@ type CompileUserCodeResult struct {
 	Msg    string
 }
 
-const CompilationMemoryLimit = 100 * 1024 * 1024
+const CompilationMemoryLimit = 256 * 1024 * 1024
 const CompilationTimeLimit = 10 * time.Second
 
-var ErrCompilationError = errors.New("compilation error")
+// var ErrCompilationError = errors.New("compilation error")
 
 // it is required that the docker image is built before the program runs
 const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
@@ -36,13 +37,17 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCo
 
 	result := &CompileUserCodeResult{}
 
-	ctxdl, cancel := context.WithTimeout(ctx, CompilationTimeLimit)
-	defer cancel()
+	if !IsTestcase(gr.TestCaseName) {
+		return nil, types.ErrNoTestCase
+	}
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot create docker client")
 	}
+
+	ctxdl, cancel := context.WithTimeout(ctx, CompilationTimeLimit)
+	defer cancel()
 
 	resp, err := cli.ContainerCreate(ctxdl, &container.Config{
 		Image: imageCompile,
@@ -76,7 +81,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCo
 
 	err = cli.ContainerStart(ctxdl, resp.ID, dockertypes.ContainerStartOptions{})
 	if err != nil {
-		return nil, errors.Wrap(ErrCompilationError, "cannot start container")
+		return nil, errors.Wrap(err, "cannot start container")
 	}
 
 	defer func() {
@@ -90,13 +95,9 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCo
 	}()
 
 	userCodeLength := len(gr.UserCode)
-	hjresp.Conn.Write([]byte(strconv.Itoa(userCodeLength) + "\n"))
+	fmt.Fprintln(hjresp.Conn, strconv.Itoa(userCodeLength))
 	hjresp.Conn.Write([]byte(gr.UserCode))
 	hjresp.Close()
-
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot close attached session (output)")
-	}
 
 	select {
 	case status := <-statusCh:
@@ -126,9 +127,9 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCo
 			result.Ok = false
 			return result, nil
 		case 2:
-			return nil, ErrCompilationError
+			return nil, types.ErrInternal
 		default:
-			return nil, ErrCompilationError
+			return nil, types.ErrInternal
 		}
 	case err := <-errCh:
 		return nil, errors.Wrap(err, "error waiting container")

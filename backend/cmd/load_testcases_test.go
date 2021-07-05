@@ -8,12 +8,16 @@ import (
 )
 
 func TestLoadTestcases(t *testing.T) {
-	ret, err := cmd.LoadTestcases()
-	assert.Equal(t, err, nil)
+	ret := cmd.LoadTestcases()
 	for _, v := range ret {
 		if v == "example-1" {
 			return
 		}
 	}
 	t.Errorf("wrong result")
+}
+
+func TestIsTestcase(t *testing.T) {
+	ret := cmd.IsTestcase("example-1")
+	assert.True(t, ret)
 }
