@@ -78,12 +78,11 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 	}
 
 	defer func() {
-		err := cli.ContainerRemove(ctxdl, resp.ID, dockertypes.ContainerRemoveOptions{
+		err := cli.ContainerRemove(ctx, resp.ID, dockertypes.ContainerRemoveOptions{
 			Force: true,
 		})
 		if err != nil {
 			log.Panicln("cannot kill and remove container")
-			panic(err)
 		}
 	}()
 

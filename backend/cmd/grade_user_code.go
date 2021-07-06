@@ -19,6 +19,7 @@ func GradeUserCode(ctx context.Context, gr types.GradeRequest) (*types.GradeResu
 		return nil, errors.Wrap(err, "cannot create tmpDir")
 	}
 	defer os.RemoveAll(tmpDir)
+	os.Chmod(tmpDir, 0777)
 
 	cr, err := CompileUserCode(ctx, gr, tmpDir)
 	if err != nil {

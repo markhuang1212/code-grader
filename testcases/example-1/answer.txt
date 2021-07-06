@@ -3,7 +3,7 @@ int main() {
     cin >> w;
     if (w == "Hello")
     {
-        cout << "World" << endl;
+        cout << "Hello" << endl;
     }
     return 0;
 }
