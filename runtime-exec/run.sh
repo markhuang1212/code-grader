@@ -6,11 +6,7 @@
 # 2: Execution Error
 # 3: Internal Error
 
-read LENGTH
-
-dd bs=$LENGTH count=1 of=a.out > /dev/null
-
-chmod +x a.out
+DATA_DIR=/data
 
 if [ -z "${TEST_CASE_DIR}" ]
 then
@@ -18,7 +14,7 @@ then
     exit 3
 fi
 
-a.out < ${TEST_CASE_DIR}/input.txt > output.txt
+${DATA_DIR}/a.out < ${TEST_CASE_DIR}/input.txt > ${DATA_DIR}/output.txt 2>&1
 
 if [[ $? -ne 0 ]]
 then
@@ -26,4 +22,4 @@ then
     exit 2
 fi
 
-diff output.txt ${TEST_CASE_DIR}/output.txt
+diff -Z -b -B -w ${DATA_DIR}/output.txt ${TEST_CASE_DIR}/output.txt

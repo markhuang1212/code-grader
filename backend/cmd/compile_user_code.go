@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"strconv"
+	"os"
 	"time"
 
 	"log"
@@ -18,9 +17,8 @@ import (
 )
 
 type CompileUserCodeResult struct {
-	Ok     bool
-	Result []byte
-	Msg    string
+	Ok  bool
+	Msg string
 }
 
 const CompilationMemoryLimit = 256 * 1024 * 1024
@@ -33,12 +31,17 @@ const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
 
 // The function compiles user's code inside a docker container, and returns the
 // executable on success
-func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCodeResult, error) {
+func CompileUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*CompileUserCodeResult, error) {
 
 	result := &CompileUserCodeResult{}
 
 	if !IsTestcase(gr.TestCaseName) {
 		return nil, types.ErrNoTestCase
+	}
+
+	err := os.WriteFile(filepath.Join(tmpDir, "code.txt"), []byte(gr.UserCode), 0666)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot write code.txt")
 	}
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -56,25 +59,17 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCo
 			"CXX=g++",
 			"CXXFLAGS=-std=c++11",
 		},
-		OpenStdin: true,
 	}, &container.HostConfig{
+		Binds:       []string{tmpDir + ":/data"},
 		NetworkMode: "none",
-		Resources:   container.Resources{
-			// Memory: CompilationMemoryLimit,
+		Resources: container.Resources{
+			Memory:     CompilationMemoryLimit,
+			MemorySwap: CompilationMemoryLimit,
 		},
 	}, nil, nil, "")
 
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create container")
-	}
-
-	hjresp, err := cli.ContainerAttach(ctxdl, resp.ID, dockertypes.ContainerAttachOptions{
-		Stdin:  true,
-		Stream: true,
-	})
-
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot attach container")
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctxdl, resp.ID, container.WaitConditionNextExit)
@@ -94,35 +89,22 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest) (*CompileUserCo
 		}
 	}()
 
-	userCodeLength := len(gr.UserCode)
-	fmt.Fprintln(hjresp.Conn, strconv.Itoa(userCodeLength))
-	hjresp.Conn.Write([]byte(gr.UserCode))
-	hjresp.Close()
-
 	select {
 	case status := <-statusCh:
 		switch status.StatusCode {
 		case 0:
-			stdout, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
-				ShowStdout: true,
-				ShowStderr: false,
-			})
-			if err != nil {
-				return nil, errors.Wrap(err, "error reading stdout")
-			}
-			program, _ := io.ReadAll(stdout)
 			result.Ok = true
-			result.Result = program
+			result.Msg = "compilation success"
 			return result, nil
 		case 1:
-			stderr, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
+			out, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
 				ShowStderr: true,
-				ShowStdout: false,
+				ShowStdout: true,
 			})
 			if err != nil {
 				return nil, errors.Wrap(err, "error reading stdout")
 			}
-			errText, _ := io.ReadAll(stderr)
+			errText, _ := io.ReadAll(out)
 			result.Msg = string(errText)
 			result.Ok = false
 			return result, nil

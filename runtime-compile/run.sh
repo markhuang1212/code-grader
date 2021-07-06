@@ -5,9 +5,7 @@
 # 1: Compilation Error
 # 2: Internal Error
 
-read LENGTH
-
-dd bs=$LENGTH count=1 of=code.txt > /dev/null
+DATA_DIR=/data
 
 if [ -z "${TEST_CASE_DIR}" ]
 then
@@ -27,15 +25,13 @@ then
     exit 2
 fi
 
-cat ${TEST_CASE_DIR}/prepend.txt > main.cpp
-cat code.txt >> main.cpp
-cat ${TEST_CASE_DIR}/append.txt >> main.cpp
+cat ${TEST_CASE_DIR}/prepend.txt > ${DATA_DIR}/main.cpp
+cat ${DATA_DIR}/code.txt >> ${DATA_DIR}/main.cpp
+cat ${TEST_CASE_DIR}/append.txt >> ${DATA_DIR}/main.cpp
 
-${CXX} ${CXXFLAGS} -o a.out main.cpp
+${CXX} ${CXXFLAGS} -o ${DATA_DIR}/a.out ${DATA_DIR}/main.cpp
 
 if [[ $? -ne 0 ]]
 then
     exit 1
 fi
-
-cat a.out

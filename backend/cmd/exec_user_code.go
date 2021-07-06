@@ -3,12 +3,10 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	dockertypes "github.com/docker/docker/api/types"
@@ -22,11 +20,13 @@ import (
 const imageExec = "markhuang1212/code-grader/runtime-exec:latest"
 
 type ExecUserCodeResult struct {
-	Ok  bool
-	Msg string
+	Ok           bool
+	MemoryExceed bool
+	TimeExceed   bool
+	Msg          string
 }
 
-func ExecUserCode(ctx context.Context, gr types.GradeRequest, program []byte) (*ExecUserCodeResult, error) {
+func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*ExecUserCodeResult, error) {
 
 	result := &ExecUserCodeResult{}
 
@@ -58,23 +58,16 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, program []byte) (*
 		Env: []string{
 			"TEST_CASE_DIR=" + filepath.Join("/code-grader/testcases", gr.TestCaseName),
 		},
-		OpenStdin: true,
 	}, &container.HostConfig{
 		NetworkMode: "none",
+		Binds:       []string{tmpDir + ":/data"},
 		Resources: container.Resources{
+			Memory:     int64(testcaseConf.RuntimeOptions.MemoryLimit) * 1024 * 1024,
 			MemorySwap: int64(testcaseConf.RuntimeOptions.MemoryLimit) * 1024 * 1024,
 		},
 	}, nil, nil, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create container")
-	}
-
-	hjresp, err := cli.ContainerAttach(ctxdl, resp.ID, dockertypes.ContainerAttachOptions{
-		Stdin:  true,
-		Stream: true,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot attach container")
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctxdl, resp.ID, container.WaitConditionNextExit)
@@ -94,11 +87,6 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, program []byte) (*
 		}
 	}()
 
-	programLength := len(program)
-	fmt.Fprintln(hjresp.Conn, strconv.Itoa(programLength))
-	hjresp.Conn.Write(program)
-	hjresp.Close()
-
 	select {
 	case status := <-statusCh:
 		switch status.StatusCode {
@@ -107,24 +95,32 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, program []byte) (*
 			result.Msg = "correct answer"
 			return result, nil
 		case 1, 2:
-			stderr, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
+			out, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
 				ShowStderr: true,
 				ShowStdout: true,
 			})
 			if err != nil {
 				return nil, errors.Wrap(err, "error reading stdout")
 			}
-			text, _ := io.ReadAll(stderr)
+			text, _ := io.ReadAll(out)
 			result.Msg = string(text)
 			result.Ok = false
 			return result, nil
 		case 3:
 			return nil, types.ErrInternal
+		case 137:
+			result.Ok = false
+			result.Msg = "memory limit exceed"
+			result.MemoryExceed = true
+			return result, nil
 		default:
 			return nil, types.ErrInternal
 		}
-	case err := <-errCh:
-		return nil, errors.Wrap(err, "error waiting container")
+	case <-errCh:
+		result.Ok = false
+		result.Msg = "time limit exceed"
+		result.TimeExceed = true
+		return result, nil
 	}
 
 }

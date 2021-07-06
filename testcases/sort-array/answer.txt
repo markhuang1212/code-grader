@@ -1,0 +1,35 @@
+bool BinarySearch(vector<int> &data，int target) {
+    
+    int N = data.Length();
+
+    if (N==0)
+        return false;
+    if (N==1)
+        return data[0] == target;
+    
+    int L = 0;
+    int R = N-1;
+
+    while(true)
+    {
+        if (data[L] == target || data[R] == target)
+            return true;
+        
+        if (R-L<=1)
+            return false;
+        
+        int mid = (R-L)/2;
+
+        if (data[mid] == target)
+            return true;
+        if (data[mid] > target) {
+            R = mid;
+            continue;
+        }
+        if (data[mid] < target) {
+            L = mid;
+            continue;
+        }
+
+    }
+}
