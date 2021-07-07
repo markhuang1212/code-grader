@@ -14,7 +14,7 @@ func GradeUserCode(ctx context.Context, gr types.GradeRequest) (*types.GradeResu
 
 	result := types.GradeResult{}
 
-	tmpDir, err := ioutil.TempDir("/tmp", "cdgr_")
+	tmpDir, err := ioutil.TempDir("/tmp", "cdgr-")
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create tmpDir")
 	}

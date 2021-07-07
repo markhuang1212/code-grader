@@ -1,6 +1,7 @@
 {
     "go.testTimeout": "60s",
     "cSpell.words": [
+        "cdgr",
         "cout",
         "endl"
     ]
