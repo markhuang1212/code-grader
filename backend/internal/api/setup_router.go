@@ -9,6 +9,8 @@ import (
 	"github.com/markhuang1212/code-grader/backend/internal/util"
 )
 
+const ApiPrefix = "/api/v1"
+
 type GradeResultResponse struct {
 	Ready  bool
 	Result types.GradeResult
@@ -26,7 +28,7 @@ func SetupRouter(cc *core.CoreController) *gin.Engine {
 		c.Redirect(http.StatusTemporaryRedirect, "https://app.swaggerhub.com/apis-docs/markhuang1212/CodeGraderCore")
 	})
 
-	authorized := r.Group("/api/v1")
+	authorized := r.Group(ApiPrefix)
 
 	authorized.POST("/grade", func(c *gin.Context) {
 
