@@ -37,14 +37,17 @@ func GradeUserCode(ctx context.Context, gr types.GradeRequest) (*types.GradeResu
 		return nil, errors.Wrap(err, "cannot execute")
 	}
 
+	result.Duration = er.Duration
 	if !er.Ok {
 		result.Msg = er.Msg
 		if er.MemoryExceed {
 			result.Status = types.GradeResultMemoryExceed
 		} else if er.TimeExceed {
 			result.Status = types.GradeResultTimeLimitExceed
-		} else {
+		} else if er.WrongAnswer {
 			result.Status = types.GradeResultWrongAnswer
+		} else {
+			return nil, types.ErrInternal
 		}
 		return &result, nil
 	}

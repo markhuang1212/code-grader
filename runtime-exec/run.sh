@@ -15,10 +15,20 @@ then
 fi
 
 ${DATA_DIR}/a.out < ${TEST_CASE_DIR}/input.txt > ${DATA_DIR}/output.txt 2>&1
+STATUS=$?
 
-if [[ $? -ne 0 ]]
+if [[ $STATUS -eq 137 ]]
 then
-    cat output.txt
+    exit 137
+fi
+
+if [[ $STATUS -ne 0 ]]
+then
+    echo "program exited with status $STATUS"
+    if [[ -f output.txt ]];
+    then
+        cat output.txt
+    fi
     exit 2
 fi
 

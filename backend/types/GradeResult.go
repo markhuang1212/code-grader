@@ -1,10 +1,13 @@
 package types
 
+import "time"
+
 type GradeResultStatus int
 
 const (
 	GradeResultSuccess GradeResultStatus = iota
 	GradeResultWrongAnswer
+	GradeResultExecutionError
 	GradeResultInternalError
 	GradeResultCompilationError
 	GradeResultTimeLimitExceed
@@ -12,6 +15,7 @@ const (
 )
 
 type GradeResult struct {
-	Status GradeResultStatus
-	Msg    string
+	Status   GradeResultStatus
+	Duration time.Duration
+	Msg      string
 }

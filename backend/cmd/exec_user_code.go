@@ -20,10 +20,13 @@ import (
 const imageExec = "markhuang1212/code-grader/runtime-exec:latest"
 
 type ExecUserCodeResult struct {
-	Ok           bool
-	MemoryExceed bool
-	TimeExceed   bool
-	Msg          string
+	Ok             bool
+	WrongAnswer    bool
+	MemoryExceed   bool
+	TimeExceed     bool
+	ExecutionError bool
+	Duration       time.Duration
+	Msg            string
 }
 
 func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*ExecUserCodeResult, error) {
@@ -76,6 +79,7 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot start container")
 	}
+	startTime := time.Now()
 
 	defer func() {
 		err := cli.ContainerRemove(ctx, resp.ID, dockertypes.ContainerRemoveOptions{
@@ -88,12 +92,14 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 
 	select {
 	case status := <-statusCh:
+		endTime := time.Now()
+		result.Duration = endTime.Sub(startTime)
 		switch status.StatusCode {
 		case 0:
 			result.Ok = true
 			result.Msg = "correct answer"
 			return result, nil
-		case 1, 2:
+		case 1:
 			out, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
 				ShowStderr: true,
 				ShowStdout: true,
@@ -103,6 +109,20 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 			}
 			text, _ := io.ReadAll(out)
 			result.Msg = string(text)
+			result.WrongAnswer = true
+			result.Ok = false
+			return result, nil
+		case 2:
+			out, err := cli.ContainerLogs(ctxdl, resp.ID, dockertypes.ContainerLogsOptions{
+				ShowStderr: true,
+				ShowStdout: true,
+			})
+			if err != nil {
+				return nil, errors.Wrap(err, "error reading stdout")
+			}
+			text, _ := io.ReadAll(out)
+			result.Msg = string(text)
+			result.ExecutionError = true
 			result.Ok = false
 			return result, nil
 		case 3:
