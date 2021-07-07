@@ -13,6 +13,7 @@ COPY . .
 WORKDIR /code-grader/backend
 RUN go build
 
+VOLUME [ "/var/run/docker.sock" ]
 EXPOSE 8080
 ENV GIN_MODE=release
 ENV APP_ROOT=/code-grader

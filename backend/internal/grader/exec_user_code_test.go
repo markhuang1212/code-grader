@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// success
 func TestExecUserCode1(t *testing.T) {
 
 	ctx := context.Background()
@@ -37,6 +38,7 @@ func TestExecUserCode1(t *testing.T) {
 
 }
 
+// execution error
 func TestExecUserCode2(t *testing.T) {
 
 	ctx := context.Background()
@@ -64,6 +66,7 @@ func TestExecUserCode2(t *testing.T) {
 
 }
 
+// memory limit exceed
 func TestExecUserCode3(t *testing.T) {
 
 	ctx := context.Background()

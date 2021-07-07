@@ -7,6 +7,7 @@ RUN apt-get -y install build-essential
 WORKDIR /code-grader
 COPY . .
 
+VOLUME [ "/data" ]
 WORKDIR /code-grader/runtime-compile
 
 USER daemon

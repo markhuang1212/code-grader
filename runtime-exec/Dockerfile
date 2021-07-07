@@ -6,6 +6,7 @@ RUN apt-get -y upgrade
 WORKDIR /code-grader
 COPY . .
 
+VOLUME [ "/data" ]
 WORKDIR /code-grader/runtime-exec
 
 USER daemon

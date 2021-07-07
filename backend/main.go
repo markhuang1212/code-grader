@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/markhuang1212/code-grader/backend/cmd"
+	"github.com/markhuang1212/code-grader/backend/internal/api"
+	"github.com/markhuang1212/code-grader/backend/internal/core"
 )
 
 func main() {
-	r := cmd.SetupRouter()
+	cc := core.NewCoreController(3)
+	r := api.SetupRouter(cc)
 	r.Run(":8080")
 }
