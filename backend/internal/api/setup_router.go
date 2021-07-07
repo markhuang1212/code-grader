@@ -22,6 +22,10 @@ func SetupRouter(cc *core.CoreController) *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
+	r.GET("/api", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "https://app.swaggerhub.com/apis-docs/markhuang1212/CodeGraderCore")
+	})
+
 	authorized := r.Group("/api/v1")
 
 	authorized.POST("/grade", func(c *gin.Context) {

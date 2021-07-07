@@ -2,18 +2,21 @@ package core
 
 import (
 	"sync"
+	"time"
 
 	"github.com/markhuang1212/code-grader/backend/internal/types"
 )
 
 type GradeResultCache struct {
-	Data map[string]types.GradeResult
-	Lock sync.RWMutex
+	Data    map[string]types.GradeResult
+	Lock    sync.RWMutex
+	Timeout time.Duration
 }
 
 func NewGradeResultCache() *GradeResultCache {
 	ret := GradeResultCache{
-		Data: make(map[string]types.GradeResult),
+		Data:    make(map[string]types.GradeResult),
+		Timeout: 12 * time.Minute,
 	}
 
 	return &ret
@@ -23,6 +26,10 @@ func (c *GradeResultCache) Add(key string, val types.GradeResult) {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 	c.Data[key] = val
+	go func() {
+		time.Sleep(c.Timeout)
+		c.Del(key)
+	}()
 }
 
 func (c *GradeResultCache) Del(key string) {
