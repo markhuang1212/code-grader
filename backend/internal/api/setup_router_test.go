@@ -1,16 +1,16 @@
-package cmd_test
+package api_test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/markhuang1212/code-grader/backend/cmd"
+	"github.com/markhuang1212/code-grader/backend/internal/api"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPingRoute(t *testing.T) {
-	router := cmd.SetupRouter()
+	router := api.SetupRouter()
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)

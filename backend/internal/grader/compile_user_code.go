@@ -1,4 +1,4 @@
-package cmd
+package grader
 
 import (
 	"context"
@@ -12,7 +12,8 @@ import (
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/markhuang1212/code-grader/backend/internal/types"
+
 	"github.com/pkg/errors"
 )
 

@@ -1,10 +1,12 @@
-package cmd
+package grader
 
 import (
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/markhuang1212/code-grader/backend/internal/util"
 )
 
 var testcases []string
@@ -14,7 +16,7 @@ func LoadTestcases() []string {
 
 	if testcases == nil {
 
-		dir := filepath.Join(GetAppRoot(), "testcases")
+		dir := filepath.Join(util.GetAppRoot(), "testcases")
 		ret, err := os.ReadDir(dir)
 
 		if err != nil {

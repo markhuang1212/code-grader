@@ -1,11 +1,11 @@
-package cmd
+package grader
 
 import (
 	"context"
 	"io/ioutil"
 	"os"
 
-	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/markhuang1212/code-grader/backend/internal/types"
 	"github.com/pkg/errors"
 )
 

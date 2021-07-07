@@ -1,11 +1,11 @@
-package cmd_test
+package grader_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/markhuang1212/code-grader/backend/cmd"
-	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/markhuang1212/code-grader/backend/internal/grader"
+	"github.com/markhuang1212/code-grader/backend/internal/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func TestGradeUserCode1(t *testing.T) {
 		TestCaseName: "example-1",
 		UserCode:     "int main() { cout << \"Hello\" << endl; }",
 	}
-	result, err := cmd.GradeUserCode(ctx, gr)
+	result, err := grader.GradeUserCode(ctx, gr)
 	assert.Nil(t, err)
 	assert.Equal(t, types.GradeResultSuccess, result.Status)
 }
@@ -28,7 +28,7 @@ func TestGradeUserCode2(t *testing.T) {
 		TestCaseName: "example-1",
 		UserCode:     "int main() { cout << \"Helloooo\" << endl; }",
 	}
-	result, err := cmd.GradeUserCode(ctx, gr)
+	result, err := grader.GradeUserCode(ctx, gr)
 	assert.Nil(t, err)
 	assert.Equal(t, types.GradeResultWrongAnswer, result.Status)
 }
@@ -40,7 +40,7 @@ func TestGradeUserCode3(t *testing.T) {
 		TestCaseName: "example-1",
 		UserCode:     "int main() { while (1) { } }",
 	}
-	result, err := cmd.GradeUserCode(ctx, gr)
+	result, err := grader.GradeUserCode(ctx, gr)
 	assert.Nil(t, err)
 	assert.Equal(t, types.GradeResultTimeLimitExceed, result.Status)
 }
@@ -52,7 +52,7 @@ func TestGradeUserCode4(t *testing.T) {
 		TestCaseName: "example-1",
 		UserCode:     "int main() { vector<int> data; while (1) { data.push_back(1024); } }",
 	}
-	result, err := cmd.GradeUserCode(ctx, gr)
+	result, err := grader.GradeUserCode(ctx, gr)
 	assert.Nil(t, err)
 	assert.Equal(t, types.GradeResultMemoryExceed, result.Status)
 }

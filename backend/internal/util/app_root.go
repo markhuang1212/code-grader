@@ -1,4 +1,4 @@
-package cmd
+package util
 
 import (
 	"path"
@@ -7,5 +7,5 @@ import (
 
 func GetAppRoot() string {
 	_, filename, _, _ := runtime.Caller(0)
-	return path.Join(path.Dir(filename), "../../")
+	return path.Join(path.Dir(filename), "../../../")
 }

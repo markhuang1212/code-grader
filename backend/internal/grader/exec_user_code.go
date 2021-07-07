@@ -1,4 +1,4 @@
-package cmd
+package grader
 
 import (
 	"context"
@@ -14,7 +14,8 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 
-	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/markhuang1212/code-grader/backend/internal/types"
+	"github.com/markhuang1212/code-grader/backend/internal/util"
 )
 
 const imageExec = "markhuang1212/code-grader/runtime-exec:latest"
@@ -37,7 +38,7 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 		return nil, types.ErrNoTestCase
 	}
 
-	testcaseConfJson, err := os.ReadFile(filepath.Join(GetAppRoot(), "testcases", gr.TestCaseName, "testcase.json"))
+	testcaseConfJson, err := os.ReadFile(filepath.Join(util.GetAppRoot(), "testcases", gr.TestCaseName, "testcase.json"))
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot read testcase.json")
 	}
@@ -67,6 +68,7 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 		Resources: container.Resources{
 			Memory:     int64(testcaseConf.RuntimeOptions.MemoryLimit) * 1024 * 1024,
 			MemorySwap: int64(testcaseConf.RuntimeOptions.MemoryLimit) * 1024 * 1024,
+			CPUQuota:   10000,
 		},
 	}, nil, nil, "")
 	if err != nil {

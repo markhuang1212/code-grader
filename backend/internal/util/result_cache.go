@@ -1,10 +1,10 @@
-package cmd
+package util
 
 import (
 	"sync"
 	"time"
 
-	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/markhuang1212/code-grader/backend/internal/types"
 )
 
 type ResultCache struct {

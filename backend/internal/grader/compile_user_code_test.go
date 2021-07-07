@@ -1,4 +1,4 @@
-package cmd_test
+package grader_test
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/markhuang1212/code-grader/backend/cmd"
-	"github.com/markhuang1212/code-grader/backend/types"
+	"github.com/markhuang1212/code-grader/backend/internal/grader"
+	"github.com/markhuang1212/code-grader/backend/internal/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,7 +26,7 @@ func TestCompileUserCode1(t *testing.T) {
 		UserCode:     " ",
 	}
 
-	result, err := cmd.CompileUserCode(ctx, gr1, tmpDir)
+	result, err := grader.CompileUserCode(ctx, gr1, tmpDir)
 	assert.Nil(t, err)
 	assert.False(t, result.Ok)
 	t.Log(result)
@@ -49,7 +49,7 @@ func TestCompileUserCode2(t *testing.T) {
 		UserCode:     "int main() { cout << \"Hello\" << endl; }",
 	}
 
-	result, err := cmd.CompileUserCode(ctx, gr2, tmpDir)
+	result, err := grader.CompileUserCode(ctx, gr2, tmpDir)
 	assert.Nil(t, err)
 	assert.True(t, result.Ok)
 	t.Log(result)
