@@ -32,6 +32,12 @@ func (c *GradeResultCache) Add(key string, val types.GradeResult) {
 	}()
 }
 
+func (c *GradeResultCache) Count() int {
+	c.Lock.RLock()
+	defer c.Lock.RUnlock()
+	return len(c.Data)
+}
+
 func (c *GradeResultCache) Del(key string) {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()

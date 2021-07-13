@@ -66,6 +66,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) 
 		Resources: container.Resources{
 			Memory:     CompilationMemoryLimit,
 			MemorySwap: CompilationMemoryLimit,
+			CPUQuota:   10000,
 		},
 	}, nil, nil, "")
 
