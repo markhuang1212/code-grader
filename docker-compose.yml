@@ -31,3 +31,5 @@ services:
             dockerfile: runtime-exec/Dockerfile
         image: markhuang1212/code-grader/runtime-exec
         entrypoint: ["/usr/bin/true"]
+    db:
+        image: redis
