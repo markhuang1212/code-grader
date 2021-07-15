@@ -43,7 +43,7 @@ func SetupRouter(cc *core.CoreController) *gin.Engine {
 
 		cc.GradeQueue <- gr
 
-		c.Header("Location", ApiPrefix+gr.Id)
+		c.Header("Location", ApiPrefix+"/result/"+gr.Id)
 		c.Status(202)
 
 	})

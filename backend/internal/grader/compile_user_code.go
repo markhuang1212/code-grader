@@ -60,6 +60,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) 
 			"CXX=g++",
 			"CXXFLAGS=-std=c++11",
 		},
+		Tty: true,
 	}, &container.HostConfig{
 		Binds:       []string{tmpDir + ":/data"},
 		NetworkMode: "none",

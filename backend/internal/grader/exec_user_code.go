@@ -62,6 +62,7 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 		Env: []string{
 			"TEST_CASE_DIR=" + filepath.Join("/code-grader/testcases", gr.TestCaseName),
 		},
+		Tty: true,
 	}, &container.HostConfig{
 		NetworkMode: "none",
 		Binds:       []string{tmpDir + ":/data"},
