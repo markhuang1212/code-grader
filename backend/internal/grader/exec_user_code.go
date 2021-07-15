@@ -62,13 +62,14 @@ func ExecUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) (*E
 		Env: []string{
 			"TEST_CASE_DIR=" + filepath.Join("/code-grader/testcases", gr.TestCaseName),
 		},
+		Tty: true,
 	}, &container.HostConfig{
 		NetworkMode: "none",
 		Binds:       []string{tmpDir + ":/data"},
 		Resources: container.Resources{
 			Memory:     int64(testcaseConf.RuntimeOptions.MemoryLimit) * 1024 * 1024,
 			MemorySwap: int64(testcaseConf.RuntimeOptions.MemoryLimit) * 1024 * 1024,
-			CPUQuota:   10000,
+			CPUQuota:   100000,
 		},
 	}, nil, nil, "")
 	if err != nil {
