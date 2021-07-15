@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markhuang1212/code-grader/backend/internal/core"
+	"github.com/markhuang1212/code-grader/backend/internal/grader"
 	"github.com/markhuang1212/code-grader/backend/internal/types"
 	"github.com/markhuang1212/code-grader/backend/internal/util"
 )
@@ -61,6 +62,11 @@ func SetupRouter(cc *core.CoreController) *gin.Engine {
 				Result: result,
 			})
 		}
+	})
+
+	authorized.GET("/testcases", func(c *gin.Context) {
+		result := grader.LoadTestcases()
+		c.JSON(200, result)
 	})
 
 	return r
