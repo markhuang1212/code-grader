@@ -1,0 +1,14 @@
+    
+    /// user code end
+
+    int *pos = &start + 1;
+
+    if (*pos == 1024)
+    {
+        cout << "Pass" << endl;
+    }
+    else
+    {
+        cout << "Fail" << endl;
+    }
+}
