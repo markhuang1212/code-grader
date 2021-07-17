@@ -4,7 +4,7 @@ This is a backend for grading C++ code in a secure and controlled manner.
 
 ## Motivation
 
-Code grading can be a difficult task, and this project aims to simplify that. `code-grader` enables grading of different types of code, from one line of variable definition, to a complete project.
+Code grading can be a difficult task, and this project aims to simplify that. `code-grader` enables grading of different types of c++ code, from one line of variable definition, implementation of an algorithms, to a complex project.
 
 ## Usage
 
