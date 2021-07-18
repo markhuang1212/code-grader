@@ -7,6 +7,8 @@ import (
 	"github.com/markhuang1212/code-grader/backend/internal/types"
 )
 
+// The server stored the GradeResults in the cache.
+// Items in the cache clears itself after a specified timeout.
 type GradeResultCache struct {
 	Data    map[string]types.GradeResult
 	Lock    sync.RWMutex

@@ -12,6 +12,8 @@ type CoreController struct {
 	GradeQueue chan types.GradeRequest
 }
 
+// A go routine that handles incoming grade
+// requests endlessly
 func (cc *CoreController) handleRequest() {
 	for {
 		request, ok := <-cc.GradeQueue
