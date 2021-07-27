@@ -13,6 +13,10 @@ Code grading can be a difficult task, and this project aims to simplify that. `c
 > docker-compose up
 ```
 
+## Progress
+
+The grading part of this project is finished.
+
 ## API
 
 https://app.swaggerhub.com/apis-docs/markhuang1212/CodeGraderCore
