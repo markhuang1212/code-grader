@@ -6,11 +6,15 @@ To add testcases to this folder, Please follow guidelines given in folders `exam
 
 ### example-1
 
-This test case is used internally for unit testing. It expect `int main() { cout << "Hello << endl; }`
+This test case is used internally for unit testing. It expect a c++ program that prints `Hello\n`. It does `include <iostream>` and `using namespace std` so that the user's code doesn't needs to. A correct answer is like:
+
+```cpp
+int main() { cout << "Hello << endl; }
+```
 
 ### simple-1
 
-This test case demonstrate how `code-grader` can be used to grade variable definition. Any variable definition of type `int` that has value `1024` pass. 
+This test case demonstrates how `code-grader` can be used to grade variable definition. Any variable definition of type `int` that has value `1024` pass. 
 
 ```cpp
 int x = 1024; // this will pass
