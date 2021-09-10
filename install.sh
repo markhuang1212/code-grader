@@ -1,12 +1,13 @@
 #!/bin/bash
 # Run this script to deploy code-grader on a Ubuntu machine
 
-export DEBIAN_FRONTEND=noninteractive
+# Install Docker
+curl -fsSL https://get.docker.com | sudo sh
 
-sudo apt-get update
-sudo apt-get -y install docker.io
+# Add user to docker group
 sudo usermod -aG docker $USER
 
+# Build or pull images
 if [ -z $FROM_SOURCE ]
 then
     docker-compose pull
@@ -16,3 +17,6 @@ fi
 
 # Automated Testing
 docker-compose run backend go test -cover ./...
+
+# Ready to go!
+# docker-compose up

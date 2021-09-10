@@ -1,9 +1,7 @@
 FROM ubuntu:21.04
 
-RUN apt-get update
-RUN apt-get -y upgrade
-
-RUN apt-get -y install golang ca-certificates docker.io redis
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends build-essential golang ca-certificates docker.io redis
 
 RUN update-ca-certificates
 
