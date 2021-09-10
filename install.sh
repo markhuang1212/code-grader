@@ -7,9 +7,10 @@ sudo apt-get -qq update
 sudo apt-get -yqq install docker.io
 sudo usermod -aG docker $USER
 
-if [ -z $FROM_SOURCE ]; then
+if [ -z $FROM_SOURCE ]
+then
     docker-compose build -q
-elif
+else
     docker-compose pull -q
 fi
 
