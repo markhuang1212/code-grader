@@ -3,15 +3,15 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get -qq update
-sudo apt-get -yqq install docker.io
+sudo apt-get update
+sudo apt-get -y install docker.io
 sudo usermod -aG docker $USER
 
 if [ -z $FROM_SOURCE ]
 then
-    docker-compose pull -q
+    docker-compose pull
 else
-    docker-compose build -q
+    docker-compose build
 fi
 
 # Automated Testing
