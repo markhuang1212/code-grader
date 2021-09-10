@@ -2,6 +2,7 @@ package db_test
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"testing"
 	"time"
@@ -17,12 +18,14 @@ func TestMain(m *testing.M) {
 	}
 
 	cmd := exec.Command(redisBin)
+	cmd.Dir = "/data"
 	cmd.Start()
 	time.Sleep(time.Second)
 
 	m.Run()
 
-	cmd.Process.Kill()
+	cmd.Process.Signal(os.Interrupt)
+	cmd.Process.Wait()
 
 }
 

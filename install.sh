@@ -7,5 +7,7 @@ sudo apt-get -y upgrade
 sudo apt-get install docker.io
 sudo usermod -aG docker $USER
 
-docker-compose build 
-docker-compose up
+docker-compose build
+
+# Start the server
+# docker-compose up
