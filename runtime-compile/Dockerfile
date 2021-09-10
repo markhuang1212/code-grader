@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM ubuntu:rolling
 
 RUN apt-get update
 RUN apt-get -y upgrade

@@ -44,10 +44,7 @@
 		"ms-azuretools.vscode-docker",
 		"redhat.vscode-yaml"
 	],
-	
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
 
 	// "oryx build" will automatically install your dependencies and attempt to build your project
-	"postCreateCommand": "oryx build -p virtualenv_name=.venv --log-file /tmp/oryx-build.log --manifest-dir /tmp || echo 'Could not auto-build. Skipping.'"
+	"postCreateCommand": "docker-compose build runtime-compile runtime-exec"
 }

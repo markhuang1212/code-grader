@@ -5,6 +5,7 @@
 # 1: Wrong Answer
 # 2: Execution Error
 # 3: Internal Error
+# 137: OOM
 
 DATA_DIR=/data
 
@@ -32,4 +33,7 @@ then
     exit 2
 fi
 
-diff -Z -b -B -w ${DATA_DIR}/output.txt ${TEST_CASE_DIR}/output.txt
+# Ignore Trailing Spaces
+# Ignore chaeges in amount of white spaces
+# Ignore Black Lines
+diff -Z -b -B ${DATA_DIR}/output.txt ${TEST_CASE_DIR}/output.txt

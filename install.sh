@@ -9,4 +9,5 @@ sudo usermod -aG docker $USER
 
 docker-compose build
 
+# Automated Testing
 docker-compose run backend go test ./...

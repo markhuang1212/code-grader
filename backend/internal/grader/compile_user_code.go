@@ -47,7 +47,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) 
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, errors.WithMessage(err, "cannot create docker client")
+		return nil, errors.Wrap(err, "cannot create docker client")
 	}
 
 	ctxdl, cancel := context.WithTimeout(ctx, CompilationTimeLimit)
@@ -58,7 +58,7 @@ func CompileUserCode(ctx context.Context, gr types.GradeRequest, tmpDir string) 
 		Env: []string{
 			"TEST_CASE_DIR=" + filepath.Join("/code-grader/testcases", gr.TestCaseName),
 			"CXX=g++",
-			"CXXFLAGS=-std=c++11",
+			"CXXFLAGS=-std=c++17",
 		},
 		Tty: true,
 	}, &container.HostConfig{

@@ -1,7 +1,4 @@
-FROM ubuntu:21.04
-
-RUN apt-get update
-RUN apt-get -y upgrade
+FROM ubuntu:rolling
 
 WORKDIR /code-grader
 COPY . .
