@@ -1,13 +1,13 @@
 #!/bin/bash
 # Run this script to deploy code-grader on a Ubuntu machine
 
-sudo apt-get update
-sudo apt-get -y upgrade
+export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get install docker.io
+sudo apt-get -qq update
+sudo apt-get -yqq install docker.io
 sudo usermod -aG docker $USER
 
-docker-compose build
+docker-compose build -q
 
 # Automated Testing
 docker-compose run backend go test -cover ./...
