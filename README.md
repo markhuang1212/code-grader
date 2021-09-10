@@ -9,8 +9,8 @@ Code grading can be a difficult task, and this project aims to simplify that. `c
 ## Usage
 
 ```shell
-> docker-compose build
-> docker-compose up
+git clone https://github.com/markhuang1212/code-grader
+./install.sh
 ```
 
 ## Progress
@@ -23,5 +23,5 @@ https://app.swaggerhub.com/apis-docs/markhuang1212/CodeGraderCore
 
 ## Author
 
-Huang Meng \
+HM \
 2021
