@@ -9,9 +9,9 @@ sudo usermod -aG docker $USER
 
 if [ -z $FROM_SOURCE ]
 then
-    docker-compose build -q
-else
     docker-compose pull -q
+else
+    docker-compose build -q
 fi
 
 # Automated Testing
