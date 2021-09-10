@@ -18,7 +18,7 @@ import (
 	"github.com/markhuang1212/code-grader/backend/internal/util"
 )
 
-const imageExec = "markhuang1212/code-grader/runtime-exec:latest"
+const imageExec = "ghcr.io/markhuang1212/cdgr-exec:latest"
 
 type ExecUserCodeResult struct {
 	Ok             bool

@@ -28,7 +28,7 @@ const CompilationTimeLimit = 10 * time.Second
 // var ErrCompilationError = errors.New("compilation error")
 
 // it is required that the docker image is built before the program runs
-const imageCompile = "markhuang1212/code-grader/runtime-compile:latest"
+const imageCompile = "ghcr.io/markhuang1212/cdgr-compile:latest"
 
 // The function compiles user's code inside a docker container, and returns the
 // executable on success

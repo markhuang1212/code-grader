@@ -4,7 +4,7 @@ services:
         build:
             context: .
             dockerfile: backend/Dockerfile
-        image: markhuang1212/code-grader/backend
+        image: ghcr.io/markhuang1212/cdgr-backend
         ports: 
             - "8080:8080"
             - "8443:8443"
@@ -23,13 +23,13 @@ services:
         build: 
             context: .
             dockerfile: runtime-compile/Dockerfile
-        image: markhuang1212/code-grader/runtime-compile
+        image: ghcr.io/markhuang1212/cdgr-compile
         entrypoint: ["/usr/bin/true"]
     runtime-exec:
         build: 
             context: .
             dockerfile: runtime-exec/Dockerfile
-        image: markhuang1212/code-grader/runtime-exec
+        image: ghcr.io/markhuang1212/cdgr-exec
         entrypoint: ["/usr/bin/true"]
     db:
         image: redis
