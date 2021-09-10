@@ -17,8 +17,14 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
+	tmpdir, err := os.MkdirTemp("/tmp", "cdgr-")
+	defer os.RemoveAll(tmpdir)
+	if err != nil {
+		panic(err)
+	}
+
 	cmd := exec.Command(redisBin)
-	cmd.Dir = "/data"
+	cmd.Dir = tmpdir
 	cmd.Start()
 	time.Sleep(time.Second)
 
