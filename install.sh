@@ -9,5 +9,4 @@ sudo usermod -aG docker $USER
 
 docker-compose build
 
-# Start the server
-# docker-compose up
+docker-compose run backend go test ./...
