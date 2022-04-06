@@ -1,0 +1,16 @@
+int main()
+{
+
+    for (int i = 0; i < testcases.size(); i++)
+    {
+        Solution a;
+        a.sortColors(testcases[i]);
+        for(int j = 0; j<testcases[i].size(); j++){
+            cout<<testcases[i][j];
+            if(j != testcases[i].size()-1)
+                cout<<",";
+        }
+        cout<<endl;
+        
+    }
+}

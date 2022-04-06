@@ -1,0 +1,15 @@
+
+int main()
+{
+
+    for (int i = 0; i < testcases.size(); i = i + 2)
+    {
+        Solution a;
+        int ans = a.compareVersion(testcases[i], testcases[i + 1]);
+        cout<<ans<<endl;
+        // if (ans != answerkey[i / 2])
+        // {
+        //     cout << "wrong answer with testcase number: " << i / 2;
+        // }
+    }
+}

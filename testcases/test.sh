@@ -9,7 +9,7 @@ cat append.txt >> /tmp/main.cpp
 
 g++ -std=c++11 -o /tmp/a.out /tmp/main.cpp
 /tmp/a.out < input.txt > /tmp/output.txt
-diff output.txt /tmp/output.txt
+diff -Z -b -B -w output.txt /tmp/output.txt
 
 if [ $? -eq 0 ]
 then
