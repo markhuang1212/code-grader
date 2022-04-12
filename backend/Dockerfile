@@ -1,7 +1,7 @@
 FROM ubuntu:21.04
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends build-essential golang ca-certificates docker.io redis
+    && apt-get -y install --no-install-recommends build-essential golang ca-certificates docker.io
 
 RUN update-ca-certificates
 
