@@ -1,0 +1,14 @@
+
+int main()
+{
+    for (int i = 0; i < newest.size(); i++)
+    {
+        Solution a;
+        int answer = a.compare2_0(newest[i], testcases);
+        if (answer == answerkey[i])
+        {
+            cout << "Correct" << endl;
+        }
+    }
+}
+

@@ -1,0 +1,18 @@
+// code to append
+int main()
+{
+
+    for (int i = 0; i < 2; i++)
+    {
+        Solution a;
+        vector<int> ans = a.sortArray(testcases);
+        if (ans != answer)
+        {
+            cout << "wrong answer with testcase number: " << i << endl;
+        }
+        else
+        {
+            cout << "Correct" << endl;
+        }
+    }
+}
