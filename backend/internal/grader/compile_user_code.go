@@ -3,10 +3,10 @@ package grader
 import (
 	"context"
 	"io"
+	"log"
 	"os"
 	"time"
 
-	"log"
 	"path/filepath"
 
 	dockertypes "github.com/docker/docker/api/types"
@@ -22,7 +22,7 @@ type CompileUserCodeResult struct {
 	Msg string
 }
 
-const CompilationMemoryLimit = 256 * 1024 * 1024
+const CompilationMemoryLimit = 512 * 1024 * 1024
 const CompilationTimeLimit = 10 * time.Second
 
 // var ErrCompilationError = errors.New("compilation error")
