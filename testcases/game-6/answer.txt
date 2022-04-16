@@ -1,8 +1,4 @@
-class Solution
-{
-public:
-    int compare2_0(string newest, vector<string> previous)
-    {
+
         string biggest = previous[0];
         for (int i = 1; i < previous.size(); i++)
         {
@@ -12,5 +8,4 @@ public:
         }
         int ans = Compare(newest, biggest);
         return ans;
-    }
-};
+ 
