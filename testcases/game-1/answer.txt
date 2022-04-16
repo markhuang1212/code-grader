@@ -1,9 +1,4 @@
 
-class Solution
-{
-public:
-    int compareVersion(string s1, string s2)
-    {
         int n1 = s1.length(); // extracting length of string s1
         int n2 = s2.length(); //extracting length of string s2
 
@@ -52,5 +47,4 @@ public:
         // after traversing whole string, if all the versions are equal, that means
         // strings are equal, so return 0
         return 0;
-    }
-};
+

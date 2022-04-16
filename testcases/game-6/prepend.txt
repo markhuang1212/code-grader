@@ -42,3 +42,9 @@ int Compare(string s1, string s2)
     }
     return 0;
 }
+
+class Solution
+{
+public:
+    int compare2_0(string newest, vector<string> previous)
+    {
