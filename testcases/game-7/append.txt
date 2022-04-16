@@ -1,0 +1,7 @@
+// code to append
+ if (coordinate == 3)
+    {
+        cout << "Correct" << endl;
+    }
+    return 0;
+}

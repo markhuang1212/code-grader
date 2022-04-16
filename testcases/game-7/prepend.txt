@@ -1,0 +1,14 @@
+// code to prepend
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int coordinate = 0;
+
+void RotateToRight(){
+    coordinate += 1;
+}
+
+int main() {
+   
