@@ -20,8 +20,3 @@ The grading part of this project is finished.
 ## API
 
 https://app.swaggerhub.com/apis-docs/markhuang1212/CodeGraderCore
-
-## Author
-
-HM \
-2021
